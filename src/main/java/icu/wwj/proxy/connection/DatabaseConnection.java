@@ -13,7 +13,7 @@ public interface DatabaseConnection {
     
     ChannelFuture connect(SocketAddress socketAddress, User user, ConnectionOption option);
     
-    ChannelFuture write(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise);
+    ChannelFuture request(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise);
     
     ChannelFuture close();
 }
