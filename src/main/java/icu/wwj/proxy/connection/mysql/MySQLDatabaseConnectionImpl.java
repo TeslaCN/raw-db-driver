@@ -5,7 +5,6 @@ import icu.wwj.proxy.connection.ConnectionOption;
 import icu.wwj.proxy.connection.User;
 import icu.wwj.proxy.connection.mysql.handler.ClientAuthenticationHandler;
 import icu.wwj.proxy.connection.mysql.handler.MySQLPacketDecoder;
-import icu.wwj.proxy.connection.mysql.handler.ServerGreetingInboundHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -34,7 +33,6 @@ public class MySQLDatabaseConnectionImpl implements MySQLDatabaseConnection {
                     @Override
                     protected void initChannel(Channel ch) {
                         ch.pipeline().addLast(new MySQLPacketDecoder());
-                        ch.pipeline().addLast(new ServerGreetingInboundHandler());
                         ch.pipeline().addLast(new ClientAuthenticationHandler());
                     }
                 });
