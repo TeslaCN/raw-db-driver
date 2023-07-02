@@ -2,6 +2,7 @@ package icu.wwj.proxy.connection;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Promise;
 
 import java.net.SocketAddress;
@@ -11,7 +12,7 @@ public interface DatabaseConnection {
     
     Channel channel();
     
-    ChannelFuture connect(SocketAddress socketAddress, User user, ConnectionOption option);
+    ChannelFuture connect(EventLoopGroup eventLoopGroup, SocketAddress socketAddress, User user, ConnectionOption option);
     
     ChannelFuture request(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise);
     

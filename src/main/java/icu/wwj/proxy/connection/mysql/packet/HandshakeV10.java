@@ -23,7 +23,7 @@ public class HandshakeV10 extends MySQLPacket {
     
     private static final int CAPABILITY_FLAGS_2_OFFSET = STATUS_FLAGS_OFFSET + 2;
     
-    private static final int AUTH_PLUGIN_DATA_LEN_OFFSET = CAPABILITY_FLAGS_2_OFFSET + 1;
+    private static final int AUTH_PLUGIN_DATA_LEN_OFFSET = CAPABILITY_FLAGS_2_OFFSET + 2;
     
     private static final int AUTH_PLUGIN_DATA_PART_2_OFFSET = AUTH_PLUGIN_DATA_LEN_OFFSET + 1 + 10;
     
@@ -33,7 +33,7 @@ public class HandshakeV10 extends MySQLPacket {
         super(byteBuf);
         int readableBytes = byteBuf.readableBytes();
         serverVersionEndOffset = byteBuf.indexOf(serverVersionOffset, readableBytes, (byte) 0x00);
-        authPluginDataPart2Length = Math.max(13, byteBuf.getByte(serverVersionOffset + AUTH_PLUGIN_DATA_LEN_OFFSET) - 8);
+        authPluginDataPart2Length = Math.max(13, byteBuf.getUnsignedByte(serverVersionEndOffset + AUTH_PLUGIN_DATA_LEN_OFFSET) - 8);
     }
     
     public String decodeServerVersion() {
@@ -41,6 +41,24 @@ public class HandshakeV10 extends MySQLPacket {
     }
     
     public int decodeThreadId() {
-        return byteBuf().getIntLE(serverVersionEndOffset + THREAD_ID_OFFSET);   
+        return byteBuf().getIntLE(serverVersionEndOffset + THREAD_ID_OFFSET);
+    }
+    
+    public int decodeCapabilities() {
+        return byteBuf().getUnsignedShortLE(serverVersionEndOffset + CAPABILITY_FLAGS_1_OFFSET)
+                | byteBuf().getUnsignedShortLE(serverVersionEndOffset + CAPABILITY_FLAGS_2_OFFSET) << 16;
+    }
+    
+    public byte[] decodeAuthPluginData() {
+        byte[] result = new byte[8 + authPluginDataPart2Length - 1];
+        byteBuf().getBytes(serverVersionEndOffset + AUTH_PLUGIN_DATA_PART_1_OFFSET, result, 0, 8);
+        byteBuf().getBytes(serverVersionEndOffset + AUTH_PLUGIN_DATA_PART_2_OFFSET, result, 8, authPluginDataPart2Length - 1);
+        return result;
+    }
+    
+    public String decodeAuthPluginName() {
+        int begin = serverVersionEndOffset + AUTH_PLUGIN_DATA_PART_2_OFFSET + authPluginDataPart2Length;
+        int length = byteBuf().bytesBefore(begin, byteBuf().writerIndex() - begin, (byte) 0);
+        return byteBuf().getCharSequence(begin, length, StandardCharsets.US_ASCII).toString();
     }
 }
