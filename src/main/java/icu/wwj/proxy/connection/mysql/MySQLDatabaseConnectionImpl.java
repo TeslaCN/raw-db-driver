@@ -4,13 +4,11 @@ import icu.wwj.proxy.connection.ByteBufAware;
 import icu.wwj.proxy.connection.ConnectionOption;
 import icu.wwj.proxy.connection.User;
 import icu.wwj.proxy.connection.mysql.handler.ClientAuthenticationHandler;
+import icu.wwj.proxy.connection.mysql.handler.ClientCloseHandler;
 import icu.wwj.proxy.connection.mysql.handler.MySQLPacketDecoder;
 import icu.wwj.proxy.connection.mysql.handler.MySQLPacketEncoder;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Promise;
 
@@ -24,7 +22,10 @@ public class MySQLDatabaseConnectionImpl implements MySQLDatabaseConnection {
 
     @Override
     public Channel channel() {
-        return null;
+        if (null == channel) {
+            throw new IllegalStateException("Connection is not ready yet");
+        }
+        return channel;
     }
 
     @Override
@@ -43,20 +44,26 @@ public class MySQLDatabaseConnectionImpl implements MySQLDatabaseConnection {
                     }
                 });
         ChannelFuture channelFuture = bootstrap.connect(socketAddress);
-        return channelFuture.addListener(future -> {
+        ChannelPromise channelReadyPromise = channelFuture.channel().newPromise();
+        channelFuture.addListener(future -> {
             if (future.isSuccess()) {
                 channel = channelFuture.channel();
+                channel.pipeline().addLast(new ClientCloseHandler());
+                channelReadyPromise.setSuccess();
             }
         });
+        return channelReadyPromise;
     }
 
     @Override
     public ChannelFuture request(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise) {
-        return null;
+        channel.attr(SEQUENCE_ID).get().set(0);
+        ChannelFuture channelFuture = channel.writeAndFlush(byteBufAware);
+        return channelFuture;
     }
 
     @Override
     public ChannelFuture close() {
-        return null;
+        return channel.close();
     }
 }

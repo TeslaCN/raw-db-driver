@@ -16,7 +16,7 @@ public class MySQLPacketEncoder extends ChannelOutboundHandlerAdapter {
         if (length <= 0xFFFFFF) {
             ByteBuf header = ctx.alloc().ioBuffer(4, 4);
             header.writeMediumLE(length);
-            header.writeByte(ctx.channel().attr(MySQLDatabaseConnection.SEQUENCE_ID).get().incrementAndGet());
+            header.writeByte(ctx.channel().attr(MySQLDatabaseConnection.SEQUENCE_ID).get().getAndIncrement());
             ctx.write(header);
             ctx.write(byteBuf, promise);
         } else {

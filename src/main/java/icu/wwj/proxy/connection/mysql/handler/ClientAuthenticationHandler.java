@@ -40,6 +40,7 @@ public class ClientAuthenticationHandler extends ChannelDuplexHandler {
             return;
         }
         if (0 == byteBuf.getByte(byteBuf.readerIndex())) {
+            ctx.channel().pipeline().remove(this);
             handshakePromise.trySuccess();
         }
     }

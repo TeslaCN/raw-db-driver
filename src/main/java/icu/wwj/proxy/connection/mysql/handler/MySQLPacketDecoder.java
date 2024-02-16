@@ -32,7 +32,7 @@ public class MySQLPacketDecoder extends LengthFieldBasedFrameDecoder {
             return null;
         }
         int sequenceId = byteBuf.readUnsignedByte();
-        ctx.channel().attr(MySQLDatabaseConnection.SEQUENCE_ID).get().set(sequenceId);
+        ctx.channel().attr(MySQLDatabaseConnection.SEQUENCE_ID).get().set(sequenceId + 1);
         int packetLength = byteBuf.readableBytes();
         if (MAX_PACKET_LENGTH == packetLength) {
             pendingByteBuf.add(byteBuf);
