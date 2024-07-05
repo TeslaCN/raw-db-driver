@@ -1,18 +1,24 @@
-package icu.wwj.proxy.connection.mysql.packet;
+package icu.wwj.proxy.connection.mysql.packet.command;
 
+import icu.wwj.proxy.connection.mysql.packet.MySQLCommand;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.nio.charset.Charset;
 
-public class MySQLComQueryPacket extends MySQLPacket {
+public class MySQLComQueryPacket extends MySQLCommandPacket {
     
-    public static final byte TYPE = 0x03;
+    private static final MySQLCommand COMMAND = MySQLCommand.COM_QUERY;
     
     public MySQLComQueryPacket(ByteBuf byteBuf) {
         super(byteBuf);
     }
-    
+
+    @Override
+    public MySQLCommand getCommand() {
+        return COMMAND;
+    }
+
     public MySQLComQueryPacket(ByteBufAllocator allocator, String sql, Charset charset) {
         super(encode(allocator, sql, charset));
     }
@@ -20,7 +26,7 @@ public class MySQLComQueryPacket extends MySQLPacket {
     private static ByteBuf encode(ByteBufAllocator allocator, String sql, Charset charset) {
         byte[] bytes = sql.getBytes(charset);
         int capacity = 1 + bytes.length;
-        return allocator.ioBuffer(capacity, capacity).writeByte(TYPE).writeBytes(bytes);
+        return allocator.ioBuffer(capacity, capacity).writeByte(COMMAND.getType()).writeBytes(bytes);
     }
     
     public String decodeSQL(Charset charset) {

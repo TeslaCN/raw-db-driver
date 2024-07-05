@@ -12,13 +12,13 @@ import java.util.Queue;
 
 public interface DatabaseConnection {
     
-    AttributeKey<Queue<ByteBufAware>> PIPELINE_KEY = AttributeKey.valueOf("PIPELINE");
+    AttributeKey<Queue<RequestContext>> PIPELINE_KEY = AttributeKey.valueOf("PIPELINE");
     
     Channel channel();
     
     ChannelFuture connect(EventLoopGroup eventLoopGroup, SocketAddress socketAddress, User user, ConnectionOption option);
     
-    ChannelFuture request(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise);
+    void request(ByteBufAware byteBufAware, Promise<List<ByteBufAware>> promise);
     
     ChannelFuture close();
 }

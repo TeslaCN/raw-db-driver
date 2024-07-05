@@ -26,7 +26,6 @@ public class MySQLPacketDecoder extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected ByteBuf decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        log.info("{}", ByteBufUtil.prettyHexDump(in));
         ByteBuf byteBuf = (ByteBuf) super.decode(ctx, in);
         if (null == byteBuf) {
             return null;
@@ -45,8 +44,10 @@ public class MySQLPacketDecoder extends LengthFieldBasedFrameDecoder {
     }
 
     private CompositeByteBuf aggregatePendingByteBuf(ByteBufAllocator alloc, ByteBuf byteBuf) {
-        return alloc.compositeBuffer(pendingByteBuf.size() + 1)
+        CompositeByteBuf result = alloc.compositeBuffer(pendingByteBuf.size() + 1)
                 .addComponents(true, pendingByteBuf)
                 .addComponents(true, byteBuf);
+        pendingByteBuf.clear();
+        return result;
     }
 }
