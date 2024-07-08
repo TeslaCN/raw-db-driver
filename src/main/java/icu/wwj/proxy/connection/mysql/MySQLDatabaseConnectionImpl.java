@@ -93,7 +93,10 @@ public class MySQLDatabaseConnectionImpl implements MySQLDatabaseConnection {
         if (null == byteBufAware || null == promise) {
             throw new IllegalArgumentException("ByteBufAware and Promise cannot be null");
         }
-        ChannelFuture channelFuture = channel.writeAndFlush(new RequestContext(byteBufAware, promise));
+        if (promise.isSuccess() || promise.isDone() || promise.isCancelled()) {
+            throw new IllegalArgumentException("Promise is already completed");
+        }
+        channel.writeAndFlush(new RequestContext(byteBufAware, promise));
 //        channel.pipeline().fireUserEventTriggered()
     }
 

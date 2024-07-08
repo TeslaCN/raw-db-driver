@@ -1,25 +1,25 @@
 package icu.wwj.proxy.connection.mysql.packet.command;
 
-import icu.wwj.proxy.connection.mysql.packet.MySQLCommand;
+import icu.wwj.proxy.connection.mysql.packet.Command;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.nio.charset.Charset;
 
-public class MySQLComQueryPacket extends MySQLCommandPacket {
+public class ComQueryPacket extends CommandPacket {
     
-    private static final MySQLCommand COMMAND = MySQLCommand.COM_QUERY;
+    private static final Command COMMAND = Command.COM_QUERY;
     
-    public MySQLComQueryPacket(ByteBuf byteBuf) {
+    public ComQueryPacket(ByteBuf byteBuf) {
         super(byteBuf);
     }
 
     @Override
-    public MySQLCommand getCommand() {
+    public Command getCommand() {
         return COMMAND;
     }
 
-    public MySQLComQueryPacket(ByteBufAllocator allocator, String sql, Charset charset) {
+    public ComQueryPacket(ByteBufAllocator allocator, String sql, Charset charset) {
         super(encode(allocator, sql, charset));
     }
     

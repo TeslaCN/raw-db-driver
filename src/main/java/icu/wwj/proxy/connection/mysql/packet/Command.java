@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum MySQLCommand {
+public enum Command {
 
     COM_QUIT((byte) 0x01),
     

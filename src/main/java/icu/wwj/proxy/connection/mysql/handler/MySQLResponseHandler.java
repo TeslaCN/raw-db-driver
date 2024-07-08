@@ -28,15 +28,17 @@ public class MySQLResponseHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         ByteBuf byteBuf = (ByteBuf) msg;
         Queue<RequestContext> queue = ctx.channel().attr(DatabaseConnection.PIPELINE_KEY).get();
-        byte type = byteBuf.getByte(byteBuf.readerIndex());
-        switch (type) {
-            case OK:
-            case EOF:
-            case ERR:
-                queue.poll();
-                if (!queue.isEmpty()) {
-                    ctx.channel().eventLoop().execute(new MySQLCommandTask(queue.peek()));
-                }
+        RequestContext currentContxt = queue.peek();
+        if (null == currentContxt) {
+            throw new IllegalStateException("No request context found for response: ");
+        }
+        currentContxt.getResponseHandler().onReceived(byteBuf);
+        if (!currentContxt.getResponseHandler().isOkOrEof()) {
+            return;
+        }
+        queue.poll();
+        if (!queue.isEmpty()) {
+            ctx.channel().eventLoop().execute(new MySQLCommandTask(queue.peek()));
         }
     }
 }

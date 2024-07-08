@@ -18,6 +18,6 @@ public class MySQLCommandTask implements Runnable {
         Channel channel = requestContext.getChannelHandlerContext().channel();
         channel.attr(MySQLDatabaseConnection.SEQUENCE_ID).get().set(0);
         requestContext.setSent(true);
-        requestContext.getChannelHandlerContext().writeAndFlush(requestContext.getByteBufAware(), channel.voidPromise());
+        requestContext.getChannelHandlerContext().writeAndFlush(requestContext.getCommand(), channel.voidPromise());
     }
 }
